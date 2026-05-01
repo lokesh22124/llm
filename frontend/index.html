@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI News App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header>
+  🧠 AI Smart News
+  <button onclick="toggleDark()">🌙</button>
+</header>
+
+<div class="container">
+
+  <input type="text" id="search" placeholder="Search news...">
+
+  <select id="stateFilter">
+    <option value="all">All States</option>
+    <option value="india">India</option>
+    <option value="tamil nadu">Tamil Nadu</option>
+    <option value="andhra pradesh">Andhra Pradesh</option>
+    <option value="karnataka">Karnataka</option>
+    <option value="kerala">Kerala</option>
+    <option value="telangana">Telangana</option>
+  </select>
+
+  <select id="categoryFilter">
+    <option value="all">All Categories</option>
+    <option value="sports">Sports</option>
+    <option value="politics">Politics</option>
+    <option value="technology">Technology</option>
+    <option value="business">Business</option>
+    <option value="health">Health</option>
+    <option value="entertainment">Entertainment</option>
+    <option value="general">General</option>
+  </select>
+
+  <div id="stats"></div>
+  <div id="news" class="grid"></div>
+
+</div>
+
+<script>
+let originalNews = [];
+let filteredNews = [];
+let visible = 20;
+
+async function loadNews(){
+  const res = await fetch("http://localhost:5000/news");
+  const data = await res.json();
+
+  originalNews = data.news;
+  filteredNews = [...originalNews];
+
+  document.getElementById("stats").innerHTML =
+    "Total: " + data.stats.total;
+
+  display();
+}
+
+
+function applyFilters(){
+  const state = document.getElementById("stateFilter").value.toLowerCase();
+  const category = document.getElementById("categoryFilter").value.toLowerCase();
+  const search = document.getElementById("search").value.toLowerCase();
+
+  filteredNews = originalNews.filter(n => {
+
+    const s = (n.state || "india").toLowerCase();
+    const c = (n.category || "general").toLowerCase();
+    const t = (n.title || "").toLowerCase();
+
+    return (
+      (state === "all" || s === state) &&
+      (category === "all" || c === category) &&
+      t.includes(search)
+    );
+  });
+
+  visible = 20;
+  display();
+}
+
+
+function display(){
+  const list = filteredNews.slice(0, visible);
+
+  document.getElementById("news").innerHTML =
+    list.map(n => `
+      <div class="card">
+        <img src="${n.image}">
+        <div class="content">
+          <h3>${n.title}</h3>
+          <p>${n.summary}</p>
+          <span>${n.category}</span> | <span>${n.state}</span>
+        </div>
+      </div>
+    `).join("");
+}
+
+
+// EVENTS
+document.getElementById("search").addEventListener("input", applyFilters);
+document.getElementById("stateFilter").addEventListener("change", applyFilters);
+document.getElementById("categoryFilter").addEventListener("change", applyFilters);
+
+
+// INFINITE SCROLL
+window.addEventListener("scroll", () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+    visible += 20;
+    display();
+  }
+});
+
+
+// DARK MODE
+function toggleDark(){
+  document.body.classList.toggle("dark");
+}
+
+loadNews();
+</script>
+
+</body>
+</html>
