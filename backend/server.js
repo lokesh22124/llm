@@ -482,91 +482,57 @@ async function fetchAllNews(){
    NEWS ROUTE
 ===================================== */
 
-app.get("/news", async(req,res)=>{
+app.get("/", (req, res) => {
+  res.json({
+    status: "Backend Running",
+    message: "Go to /news to get news data"
+  });
+});
 
-  try{
+app.get("/news", async (req, res) => {
+  try {
+    const articles = await fetchAllNews();
 
-    const articles =
-    await fetchAllNews();
+    const processed = await Promise.all(
+      articles.map(async (article) => {
+        const ai = await classifyAI(article);
 
-    const processed =
-    await Promise.all(
+        return {
+          title: article.title || "No Title",
 
-      articles.map(
-        async(article)=>{
-
-          const ai =
-          await classifyAI(
-            article
-          );
-
-          return {
-
-            title:
-            article.title ||
-            "No Title",
-
-            image:
-
+          image:
             article.urlToImage &&
-
             article.urlToImage.startsWith("http")
+              ? article.urlToImage
+              : getRandomImage(),
 
-            ? article.urlToImage
+          url: article.url || "#",
 
-            : getRandomImage(),
+          source: article.source?.name || "Unknown",
 
-            url:
-            article.url || "#",
+          summary: ai.summary || article.description,
 
-            source:
-            article.source?.name ||
-            "Unknown",
+          category: ai.category || "general",
 
-            summary:
-            ai.summary ||
-            article.description,
-
-            category:
-            ai.category ||
-            "general",
-
-            state:
-            ai.state ||
-            article.state ||
-            "world"
-
-          };
-
-        }
-      )
-
+          state: ai.state || article.state || "world"
+        };
+      })
     );
 
     res.json({
-
-      total:
-      processed.length,
-
-      news:
-      processed
-
+      total: processed.length,
+      news: processed
     });
 
-  }catch(err){
+  } catch (err) {
+    console.error("NEWS ROUTE ERROR:", err);
 
     res.status(500).json({
-
-      news:[],
-
-      error:err.message
-
+      news: [],
+      error: err.message
     });
-
   }
-
 });
-
 /* =====================================
    START SERVER
 ===================================== */
