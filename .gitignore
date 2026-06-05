@@ -4,6 +4,7 @@ frontend/node_modules/
 
 # environment files
 backend/.env
+frontend/.env
 
 # python cache
 __pycache__/
@@ -12,7 +13,7 @@ __pycache__/
 frontend/build/
 
 # logs
-npm-debug.log*
+npm-debug.log*S
 
 # vscode
 .vscode/
