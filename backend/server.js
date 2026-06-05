@@ -260,7 +260,7 @@ async function classifyAI(article){
 
     const response =
     await axios.post(
-      "http://127.0.0.1:8000/classify",
+      `${process.env.AI_SERVER_URL}/classify`,
       {
 
         title:

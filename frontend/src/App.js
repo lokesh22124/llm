@@ -102,7 +102,7 @@ function App(){
 
       const res =
       await axios.get(
-        "http://localhost:5000/news"
+        `${process.env.REACT_APP_BACKEND_URL}/news`,
       );
 
       const enhanced =
@@ -262,7 +262,7 @@ function App(){
 
       const response =
       await axios.post(
-        "http://127.0.0.1:8000/translate",
+        `${process.env.REACT_APP_AI_URL}/translate`,
         {
 
           title:
