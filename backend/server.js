@@ -481,7 +481,11 @@ async function fetchAllNews(){
 /* =====================================
    NEWS ROUTE
 ===================================== */
-
+app.get("/routes-test", (req, res) => {
+  res.json({
+    message: "routes loaded"
+  });
+});
 /* =====================================
    HOME ROUTE
 ===================================== */
