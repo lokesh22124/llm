@@ -100,13 +100,13 @@ function App(){
 
       setLoading(true);
 
-      const res =
-      await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/news`,
-      );
+      const res = await axios.get(
+  `${process.env.REACT_APP_BACKEND_URL}/news`
+);
 
-      const enhanced =
-      (res.data.news || []).map(
+console.log("BACKEND RESPONSE:", res.data);
+
+const enhanced = (res.data.news || []).map(
         (n,index)=>({
 
           ...n,
@@ -146,12 +146,12 @@ function App(){
 
     }catch(err){
 
-      console.log(
-        "LOAD NEWS ERROR:",
-        err
-      );
+  console.error(
+    "LOAD NEWS ERROR:",
+    err.response?.data || err.message
+  );
 
-    }finally{
+}finally{
 
       setLoading(false);
 
