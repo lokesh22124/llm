@@ -498,32 +498,30 @@ app.get("/news", async (req, res) => {
 
 });
 
-/* =====================================
-   DEBUG ROUTE
-===================================== */
+app.get("/news", async (req, res) => {
 
-app.get("/debug", async (req, res) => {
   try {
 
-    const apiNews = await fetchNewsAPI();
-    const rssNews = await fetchRSSNews();
+    const articles = await fetchAllNews();
+
+    console.log("ARTICLES COUNT:", articles.length);
 
     res.json({
-      apiCount: apiNews.length,
-      rssCount: rssNews.length,
-      newsApiConfigured: !!process.env.NEWS_API_KEY,
-      aiServerConfigured: !!process.env.AI_SERVER_URL
+      articlesCount: articles.length,
+      firstArticle: articles[0] || null
     });
 
   } catch (err) {
 
-    res.json({
+    console.error("NEWS ROUTE ERROR:", err);
+
+    res.status(500).json({
       error: err.message
     });
 
   }
-});
 
+});
 /* =====================================
    START SERVER
 ===================================== */
