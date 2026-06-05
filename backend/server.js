@@ -482,99 +482,53 @@ async function fetchAllNews(){
    NEWS ROUTE
 ===================================== */
 
-app.get("/news", async(req,res)=>{
+/* =====================================
+   HOME ROUTE
+===================================== */
 
-  try{
+app.get("/", (req, res) => {
+  res.json({
+    status: "Backend Running",
+    message: "Go to /news to get news data"
+  });
+});
 
-    const articles =
-    await fetchAllNews();
+/* =====================================
+   DEBUG ROUTE
+===================================== */
 
-    const processed =
-    await Promise.all(
+app.get("/debug", async (req, res) => {
+  try {
 
-      articles.map(
-        async(article)=>{
-
-          const ai =
-          await classifyAI(
-            article
-          );
-
-          return {
-
-            title:
-            article.title ||
-            "No Title",
-
-            image:
-
-            article.urlToImage &&
-
-            article.urlToImage.startsWith("http")
-
-            ? article.urlToImage
-
-            : getRandomImage(),
-
-            url:
-            article.url || "#",
-
-            source:
-            article.source?.name ||
-            "Unknown",
-
-            summary:
-            ai.summary ||
-            article.description,
-
-            category:
-            ai.category ||
-            "general",
-
-            state:
-            ai.state ||
-            article.state ||
-            "world"
-
-          };
-
-        }
-      )
-
-    );
+    const apiNews = await fetchNewsAPI();
+    const rssNews = await fetchRSSNews();
 
     res.json({
-
-      total:
-      processed.length,
-
-      news:
-      processed
-
+      apiCount: apiNews.length,
+      rssCount: rssNews.length,
+      newsApiConfigured: !!process.env.NEWS_API_KEY,
+      aiServerConfigured: !!process.env.AI_SERVER_URL
     });
 
-  }catch(err){
+  } catch (err) {
 
-    res.status(500).json({
-
-      news:[],
-
-      error:err.message
-
+    res.json({
+      error: err.message
     });
 
   }
-
 });
 
 /* =====================================
    START SERVER
 ===================================== */
 
-app.listen(5000,()=>{
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
 
   console.log(
-    "Server running at http://localhost:5000"
+    `Server running on port ${PORT}`
   );
 
 });
