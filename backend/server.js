@@ -490,11 +490,12 @@ app.get("/routes-test", (req, res) => {
    HOME ROUTE
 ===================================== */
 
-app.get("/", (req, res) => {
+app.get("/news", async (req, res) => {
+
   res.json({
-    status: "Backend Running",
-    message: "Go to /news to get news data"
+    message: "NEWS ROUTE WORKING"
   });
+
 });
 
 /* =====================================
