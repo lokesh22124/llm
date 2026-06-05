@@ -492,23 +492,57 @@ app.get("/routes-test", (req, res) => {
 
 app.get("/news", async (req, res) => {
 
-  res.json({
-    message: "NEWS ROUTE WORKING"
-  });
-
-});
-
-app.get("/news", async (req, res) => {
-
   try {
 
-    const articles = await fetchAllNews();
+    const articles =
+      (await fetchAllNews()).slice(0, 50);
 
-    console.log("ARTICLES COUNT:", articles.length);
+    const processed =
+      await Promise.all(
+
+        articles.map(async (article) => {
+
+          const ai =
+            await classifyAI(article);
+
+          return {
+
+            title:
+              article.title || "No Title",
+
+            image:
+              article.urlToImage &&
+              article.urlToImage.startsWith("http")
+                ? article.urlToImage
+                : getRandomImage(),
+
+            url:
+              article.url || "#",
+
+            source:
+              article.source?.name || "Unknown",
+
+            summary:
+              ai.summary ||
+              article.description,
+
+            category:
+              ai.category || "general",
+
+            state:
+              ai.state ||
+              article.state ||
+              "world"
+
+          };
+
+        })
+
+      );
 
     res.json({
-      articlesCount: articles.length,
-      firstArticle: articles[0] || null
+      total: processed.length,
+      news: processed
     });
 
   } catch (err) {
@@ -516,12 +550,14 @@ app.get("/news", async (req, res) => {
     console.error("NEWS ROUTE ERROR:", err);
 
     res.status(500).json({
+      news: [],
       error: err.message
     });
 
   }
 
 });
+
 /* =====================================
    START SERVER
 ===================================== */
